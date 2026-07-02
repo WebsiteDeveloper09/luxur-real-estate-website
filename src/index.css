@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  --color-purple-dark: #1A0B2E;
+  --color-purple-royal: #6C2BD9;
+  --color-purple-bright: #A855F7;
+  --color-purple-lavender: #DDD6FE;
+  --color-purple-tint: #FAF5FF;
+  --color-accent-gold: #F59E0B;
+
+  --font-heading: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+  --font-accent: "Urbanist", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-purple-tint text-gray-800 font-body antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-purple-dark;
+  }
+}
+
+@layer components {
+  /* Glassmorphism Utilities */
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
+    box-shadow: 0 8px 32px 0 rgba(31,38,135,0.07);
+  }
+  
+  .glass-dark {
+    @apply bg-purple-dark/80 backdrop-blur-lg border border-purple-royal/30;
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.3);
+  }
+
+  /* Premium Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-purple-royal to-purple-bright text-white font-medium transition-all duration-300;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 20px rgba(168,85,247,0.5);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl bg-purple-lavender text-purple-dark font-medium transition-all duration-300;
+  }
+  .btn-secondary:hover {
+    @apply bg-purple-bright text-white;
+    transform: translateY(-2px);
+  }
+  
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl border-2 border-purple-royal text-purple-royal font-medium transition-all duration-300;
+  }
+  .btn-outline:hover {
+    @apply bg-purple-royal text-white;
+    transform: translateY(-2px);
+  }
+}
+
+/* Custom Scrollbar for a sleek look */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF5FF;
+}
+::-webkit-scrollbar-thumb {
+  background: #DDD6FE;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A855F7;
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
