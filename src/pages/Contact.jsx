@@ -5,6 +5,19 @@ import { Phone, Mail, MapPin, Clock, Send, MessageSquare, Globe, CheckCircle } f
 const Contact = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
   const offices = [
     {
       city: 'Beverly Hills',
@@ -119,26 +132,32 @@ const Contact = () => {
                 <p className="text-gray-500 max-w-sm">Thank you for reaching out. Our team will get back to you within 24 hours.</p>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <motion.form 
+                onSubmit={handleSubmit} 
+                className="space-y-5"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div>
+                  <motion.div variants={itemVariants}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                     <input type="text" placeholder="John" required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
-                  </div>
-                  <div>
+                  </motion.div>
+                  <motion.div variants={itemVariants}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                     <input type="text" placeholder="Doe" required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
-                  </div>
+                  </motion.div>
                 </div>
-                <div>
+                <motion.div variants={itemVariants}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                   <input type="email" placeholder="john@example.com" required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
-                </div>
-                <div>
+                </motion.div>
+                <motion.div variants={itemVariants}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                   <input type="tel" placeholder="+1 (555) 000-0000" className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
-                </div>
-                <div>
+                </motion.div>
+                <motion.div variants={itemVariants}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
                   <select required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all appearance-none cursor-pointer bg-white">
                     <option value="">Select a topic...</option>
@@ -148,17 +167,23 @@ const Contact = () => {
                     <option value="manage">Property management</option>
                     <option value="other">Other inquiry</option>
                   </select>
-                </div>
-                <div>
+                </motion.div>
+                <motion.div variants={itemVariants}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
                   <textarea rows="5" placeholder="Tell us about your real estate needs..." required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all resize-none"></textarea>
-                </div>
-                <button type="submit" className="btn-primary w-full py-4 text-lg shadow-lg group">
+                </motion.div>
+                <motion.button 
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.02 }} 
+                  whileTap={{ scale: 0.98 }} 
+                  type="submit" 
+                  className="btn-primary w-full py-4 text-lg shadow-lg group"
+                >
                   <span className="flex items-center justify-center gap-2">
                     Send Message <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
-                </button>
-              </form>
+                </motion.button>
+              </motion.form>
             )}
           </motion.div>
 

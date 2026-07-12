@@ -5,11 +5,14 @@ import { motion } from 'framer-motion';
 const PropertyCard = ({ property, index }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      layout
+      initial={{ opacity: 0, y: 50, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      whileHover={{ y: -5 }}
+      exit={{ opacity: 0, scale: 0.9 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="glass overflow-hidden rounded-2xl group cursor-pointer text-left flex flex-col h-full"
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      className="glass overflow-hidden rounded-2xl group cursor-pointer text-left flex flex-col h-full shadow-sm hover:shadow-xl transition-shadow"
     >
       {/* Image Section */}
       <div className="relative h-64 overflow-hidden">
@@ -23,9 +26,13 @@ const PropertyCard = ({ property, index }) => {
             {property.status}
           </span>
         </div>
-        <button className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-purple-royal hover:text-white transition-colors">
+        <motion.button 
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-purple-royal hover:text-white transition-colors"
+        >
           <Heart className="w-5 h-5" />
-        </button>
+        </motion.button>
         <img
           src={property.image}
           alt={property.title}

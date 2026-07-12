@@ -146,12 +146,12 @@ const Services = () => {
               Contact our advisory team today to discuss your real estate needs in complete confidentiality.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contact" className="btn-primary bg-white text-purple-royal hover:bg-purple-tint px-8 py-4 text-lg border-none flex items-center justify-center">
+              <Link to="/contact" className="flex items-center justify-center px-8 py-4 text-lg rounded-xl font-bold bg-white text-purple-royal hover:bg-purple-tint transition-colors border-none shadow-md">
                 Schedule a Consultation
               </Link>
-              <button className="flex items-center justify-center px-8 py-4 rounded-xl border-2 border-white/30 text-white font-medium hover:bg-white/10 transition-colors">
+              <a href="tel:+18001234567" className="flex items-center justify-center px-8 py-4 rounded-xl border-2 border-white/30 text-white font-medium hover:bg-white/10 transition-colors">
                 <Phone className="w-5 h-5 mr-2" /> (800) 123-4567
-              </button>
+              </a>
             </div>
           </div>
         </div>

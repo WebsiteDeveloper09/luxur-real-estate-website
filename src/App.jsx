@@ -6,6 +6,7 @@ import Properties from './pages/Properties';
 import PropertyDetails from './pages/PropertyDetails';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
+import About from './pages/About';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
           <Route path="properties/:id" element={<PropertyDetails />} />
           <Route path="services" element={<Services />} />
           <Route path="contact" element={<Contact />} />
-          <Route path="about" element={<div className="min-h-screen pt-24 text-center"><h1 className="text-4xl font-heading text-purple-dark">About Us Page</h1></div>} />
+          <Route path="about" element={<About />} />
           <Route path="*" element={<div className="min-h-screen pt-24 text-center"><h1 className="text-4xl font-heading text-purple-dark">404 - Not Found</h1></div>} />
         </Route>
       </Routes>
