@@ -1,8 +1,18 @@
 import React from 'react';
 import { Heart, MapPin, Bed, Bath, Square, Car } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useFavorites } from '../../context/FavoritesContext';
 
 const PropertyCard = ({ property, index }) => {
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const favorited = isFavorite(property.id);
+
+  const handleToggleFavorite = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(property);
+  };
+
   return (
     <motion.div
       layout
@@ -27,11 +37,16 @@ const PropertyCard = ({ property, index }) => {
           </span>
         </div>
         <motion.button 
+          onClick={handleToggleFavorite}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-purple-royal hover:text-white transition-colors"
+          className={`absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+            favorited 
+              ? 'bg-purple-royal text-white shadow-lg' 
+              : 'bg-white/30 backdrop-blur-sm text-white hover:bg-purple-royal hover:text-white'
+          }`}
         >
-          <Heart className="w-5 h-5" />
+          <Heart className="w-5 h-5" fill={favorited ? "currentColor" : "none"} />
         </motion.button>
         <img
           src={property.image}

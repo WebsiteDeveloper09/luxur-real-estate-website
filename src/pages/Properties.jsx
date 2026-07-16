@@ -1,18 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Grid, List, X } from 'lucide-react';
 import PropertyCard from '../components/ui/PropertyCard';
+import { useFavorites } from '../context/FavoritesContext';
 
 // Property data — numeric prices for filtering
 const allProperties = [
-  { id: 1, title: 'Modern Glass Villa in the Hills', location: 'Beverly Hills, CA', price: '$8,500,000', numericPrice: 8500000, image: '/images/properties/villa-beverly-hills.png', beds: 5, baths: 6, sqft: '6,200', garage: 3, featured: true, status: 'For Sale', type: 'Villa' },
-  { id: 2, title: 'Luxury Penthouse with Ocean View', location: 'Miami Beach, FL', price: '$5,200,000', numericPrice: 5200000, image: '/images/properties/penthouse-miami.png', beds: 3, baths: 4, sqft: '3,800', garage: 2, featured: false, status: 'For Sale', type: 'Apartment' },
-  { id: 3, title: 'Historic Manor Estate', location: 'Greenwich, CT', price: '$12,750,000', numericPrice: 12750000, image: '/images/properties/manor-estate.png', beds: 7, baths: 8, sqft: '12,400', garage: 5, featured: true, status: 'For Sale', type: 'House' },
+  { id: 1, title: 'Modern Glass Villa in the Hills', location: 'Beverly Hills, CA', price: '$8,500,000', numericPrice: 8500000, image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&q=80&w=2000', beds: 5, baths: 6, sqft: '6,200', garage: 3, featured: true, status: 'For Sale', type: 'Villa' },
+  { id: 2, title: 'Luxury Penthouse with Ocean View', location: 'Miami Beach, FL', price: '$5,200,000', numericPrice: 5200000, image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=2000', beds: 3, baths: 4, sqft: '3,800', garage: 2, featured: false, status: 'For Sale', type: 'Apartment' },
+  { id: 3, title: 'Historic Manor Estate', location: 'Greenwich, CT', price: '$12,750,000', numericPrice: 12750000, image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&q=80&w=2000', beds: 7, baths: 8, sqft: '12,400', garage: 5, featured: true, status: 'For Sale', type: 'House' },
   { id: 4, title: 'Contemporary Mountain Retreat', location: 'Aspen, CO', price: '$9,100,000', numericPrice: 9100000, image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80', beds: 4, baths: 5, sqft: '4,500', garage: 2, featured: false, status: 'For Rent', type: 'House' },
-  { id: 5, title: 'Downtown Skyline Loft', location: 'New York, NY', price: '$3,800,000', numericPrice: 3800000, image: '/images/properties/downtown-loft.png', beds: 2, baths: 2, sqft: '2,100', garage: 1, featured: false, status: 'For Sale', type: 'Apartment' },
+  { id: 5, title: 'Downtown Skyline Loft', location: 'New York, NY', price: '$3,800,000', numericPrice: 3800000, image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1000&q=80', beds: 2, baths: 2, sqft: '2,100', garage: 1, featured: false, status: 'For Sale', type: 'Apartment' },
   { id: 6, title: 'Seaside Modern Home', location: 'Malibu, CA', price: '$15,000,000', numericPrice: 15000000, image: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=800&q=80', beds: 5, baths: 6, sqft: '5,800', garage: 4, featured: true, status: 'For Sale', type: 'House' },
-  { id: 7, title: 'Prime Downtown Commercial Tower', location: 'Los Angeles, CA', price: '$22,500,000', numericPrice: 22500000, image: '/images/properties/commercial-tower.png', beds: 0, baths: 12, sqft: '35,000', garage: 80, featured: true, status: 'For Sale', type: 'Commercial' },
-  { id: 8, title: 'Stylish City-View Rental Apartment', location: 'Chicago, IL', price: '$4,500/mo', numericPrice: 4500, image: '/images/properties/rental-apartment.png', beds: 2, baths: 2, sqft: '1,400', garage: 1, featured: true, status: 'For Rent', type: 'Apartment' },
+  { id: 7, title: 'Prime Downtown Commercial Tower', location: 'Los Angeles, CA', price: '$22,500,000', numericPrice: 22500000, image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80', beds: 0, baths: 12, sqft: '35,000', garage: 80, featured: true, status: 'For Sale', type: 'Commercial' },
+  { id: 8, title: 'Stylish City-View Rental Apartment', location: 'Chicago, IL', price: '$4,500/mo', numericPrice: 4500, image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80', beds: 2, baths: 2, sqft: '1,400', garage: 1, featured: true, status: 'For Rent', type: 'Apartment' },
   { id: 9, title: 'Charming Suburban Family Home', location: 'Austin, TX', price: '$3,200/mo', numericPrice: 3200, image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80', beds: 3, baths: 2, sqft: '2,200', garage: 2, featured: false, status: 'For Rent', type: 'House' },
   { id: 10, title: 'Tropical Pool Villa Retreat', location: 'Palm Beach, FL', price: '$9,800/mo', numericPrice: 9800, image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80', beds: 4, baths: 4, sqft: '3,600', garage: 2, featured: true, status: 'For Rent', type: 'Villa' },
   { id: 11, title: 'Modern Commercial Office Suite', location: 'San Francisco, CA', price: '$7,500/mo', numericPrice: 7500, image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80', beds: 0, baths: 3, sqft: '5,000', garage: 10, featured: false, status: 'For Rent', type: 'Commercial' },
@@ -21,11 +23,11 @@ const allProperties = [
   { id: 13, title: 'Affordable Starter Home', location: 'Phoenix, AZ', price: '$5,500', numericPrice: 5500, image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80', beds: 2, baths: 1, sqft: '980', garage: 1, featured: false, status: 'For Sale', type: 'House' },
   { id: 14, title: 'City Centre Studio Apartment', location: 'Detroit, MI', price: '$3,200', numericPrice: 3200, image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80', beds: 1, baths: 1, sqft: '540', garage: 0, featured: false, status: 'For Sale', type: 'Apartment' },
   { id: 15, title: 'Rustic Countryside Villa', location: 'Nashville, TN', price: '$9,000', numericPrice: 9000, image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80', beds: 3, baths: 2, sqft: '1,800', garage: 1, featured: true, status: 'For Sale', type: 'Villa' },
-  { id: 16, title: 'Small Business Commercial Unit', location: 'Atlanta, GA', price: '$8,000', numericPrice: 8000, image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80', beds: 4, baths: 1, sqft: '1,200', garage: 2, featured: false, status: 'For Sale', type: 'Commercial' },
+  { id: 16, title: 'Small Business Commercial Unit', location: 'Atlanta, GA', price: '$8,000', numericPrice: 8000, image: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=800&q=80', beds: 4, baths: 1, sqft: '1,200', garage: 2, featured: false, status: 'For Sale', type: 'Commercial' },
   { id: 17, title: 'Compact Modern Townhouse', location: 'Memphis, TN', price: '$6,800', numericPrice: 6800, image: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?auto=format&fit=crop&w=800&q=80', beds: 2, baths: 2, sqft: '1,100', garage: 1, featured: false, status: 'For Sale', type: 'House' },
   { id: 18, title: 'Downtown Retail Space with Office', location: 'Dallas, TX', price: '$9,500', numericPrice: 9500, image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80', beds: 4, baths: 2, sqft: '2,000', garage: 4, featured: true, status: 'For Sale', type: 'Commercial' },
   { id: 19, title: 'Suburban Office Park Suite', location: 'Orlando, FL', price: '$7,200', numericPrice: 7200, image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80', beds: 5, baths: 2, sqft: '1,800', garage: 5, featured: false, status: 'For Sale', type: 'Commercial' },
-  { id: 20, title: 'Boutique Storefront Property', location: 'Portland, OR', price: '$5,900', numericPrice: 5900, image: '/images/properties/storefront.png', beds: 4, baths: 1, sqft: '900', garage: 1, featured: false, status: 'For Sale', type: 'Commercial' },
+  { id: 20, title: 'Boutique Storefront Property', location: 'Portland, OR', price: '$5,900', numericPrice: 5900, image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=80', beds: 4, baths: 1, sqft: '900', garage: 1, featured: false, status: 'For Sale', type: 'Commercial' },
 
 ];
 
@@ -39,10 +41,13 @@ const defaultFilters = {
 };
 
 const Properties = () => {
+  const location = useLocation();
   const [viewMode, setViewMode] = useState('grid');
   const [currentPage, setCurrentPage] = useState(1);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
+  const [showSaved, setShowSaved] = useState(false);
+  const { favorites } = useFavorites();
 
   // Pending filters (what user is selecting in the sidebar)
   const [pendingFilters, setPendingFilters] = useState(defaultFilters);
@@ -51,16 +56,34 @@ const Properties = () => {
 
   const itemsPerPage = 4;
 
+  useEffect(() => {
+    if (location.state?.search) {
+      const newFilters = { ...defaultFilters, search: location.state.search };
+      setPendingFilters(newFilters);
+      setAppliedFilters(newFilters);
+      setShowSaved(false);
+    }
+    if (location.state?.showSaved) {
+      setShowSaved(true);
+      setPendingFilters(defaultFilters);
+      setAppliedFilters(defaultFilters);
+      setCurrentPage(1);
+    }
+  }, [location.state]);
+
   const updatePending = (key, value) =>
     setPendingFilters((prev) => ({ ...prev, [key]: value }));
 
   const toggleType = (type) => {
-    setPendingFilters((prev) => ({
-      ...prev,
-      types: prev.types.includes(type)
+    setPendingFilters((prev) => {
+      const updatedTypes = prev.types.includes(type)
         ? prev.types.filter((t) => t !== type)
-        : [...prev.types, type],
-    }));
+        : [...prev.types, type];
+      const updated = { ...prev, types: updatedTypes };
+      setAppliedFilters(updated);
+      setCurrentPage(1);
+      return updated;
+    });
   };
 
   // Immediately apply a single filter key without requiring "Apply Filters"
@@ -91,7 +114,9 @@ const Properties = () => {
   };
 
   const filteredProperties = useMemo(() => {
-    let list = [...allProperties];
+    let list = showSaved 
+      ? allProperties.filter((p) => favorites.some((f) => f.id === p.id))
+      : [...allProperties];
     const f = appliedFilters;
 
     if (f.search.trim()) {
@@ -105,12 +130,18 @@ const Properties = () => {
       list = list.filter((p) => p.status === statusMap[f.status]);
     }
     if (f.minPrice !== '') {
-      const min = Number(f.minPrice.replace(/,/g, ''));
-      if (!isNaN(min)) list = list.filter((p) => p.numericPrice >= min);
+      const minStr = f.minPrice.replace(/[^0-9.]/g, '');
+      if (minStr) {
+        const min = Number(minStr);
+        if (!isNaN(min)) list = list.filter((p) => p.numericPrice >= min);
+      }
     }
     if (f.maxPrice !== '') {
-      const max = Number(f.maxPrice.replace(/,/g, ''));
-      if (!isNaN(max)) list = list.filter((p) => p.numericPrice <= max);
+      const maxStr = f.maxPrice.replace(/[^0-9.]/g, '');
+      if (maxStr) {
+        const max = Number(maxStr);
+        if (!isNaN(max)) list = list.filter((p) => p.numericPrice <= max);
+      }
     }
     if (f.beds !== 'Any') {
       const minBeds = parseInt(f.beds);
@@ -124,7 +155,7 @@ const Properties = () => {
     else if (sortBy === 'price-desc') list.sort((a, b) => b.numericPrice - a.numericPrice);
 
     return list;
-  }, [appliedFilters, sortBy]);
+  }, [appliedFilters, sortBy, showSaved, favorites]);
 
   const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
   const paginatedProperties = filteredProperties.slice(
@@ -179,7 +210,7 @@ const Properties = () => {
             type="text"
             placeholder="Min"
             value={pendingFilters.minPrice}
-            onChange={(e) => updatePending('minPrice', e.target.value)}
+            onChange={(e) => applyInstant('minPrice', e.target.value)}
             className="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-purple-royal"
           />
           <span className="text-gray-400">-</span>
@@ -187,7 +218,7 @@ const Properties = () => {
             type="text"
             placeholder="Max"
             value={pendingFilters.maxPrice}
-            onChange={(e) => updatePending('maxPrice', e.target.value)}
+            onChange={(e) => applyInstant('maxPrice', e.target.value)}
             className="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:border-purple-royal"
           />
         </div>

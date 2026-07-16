@@ -11,7 +11,7 @@ const featuredProperties = [
     title: 'Modern Glass Villa in the Hills',
     location: 'Beverly Hills, California',
     price: '$8,500,000',
-    image: '/images/properties/villa-beverly-hills.png',
+    image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&q=80&w=2000',
     beds: 5,
     baths: 6,
     sqft: '6,200',
@@ -24,7 +24,7 @@ const featuredProperties = [
     title: 'Luxury Penthouse with Ocean View',
     location: 'Miami Beach, Florida',
     price: '$5,200,000',
-    image: '/images/properties/penthouse-miami.png',
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=2000',
     beds: 3,
     baths: 4,
     sqft: '3,800',
@@ -37,7 +37,7 @@ const featuredProperties = [
     title: 'Historic Manor Estate',
     location: 'Greenwich, Connecticut',
     price: '$12,750,000',
-    image: '/images/properties/manor-estate.png',
+    image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&q=80&w=2000',
     beds: 7,
     baths: 8,
     sqft: '12,400',
@@ -48,10 +48,10 @@ const featuredProperties = [
 ];
 
 const categories = [
-  { name: 'Luxury Villas', icon: '🏰', count: '120+ Properties', bg: '/images/categories/luxury-villas.png' },
-  { name: 'Modern Apartments', icon: '🏢', count: '350+ Properties', bg: '/images/categories/modern-apartments.png' },
-  { name: 'Family Homes', icon: '🏡', count: '500+ Properties', bg: '/images/categories/family-homes.png' },
-  { name: 'Commercial Spaces', icon: '🏛️', count: '80+ Properties', bg: '/images/categories/commercial-spaces.png' }
+  { name: 'Luxury Villas', icon: '🏰', count: '120+ Properties', bg: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1000' },
+  { name: 'Modern Apartments', icon: '🏢', count: '350+ Properties', bg: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=1000' },
+  { name: 'Family Homes', icon: '🏡', count: '500+ Properties', bg: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1000' },
+  { name: 'Commercial Spaces', icon: '🏛️', count: '80+ Properties', bg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1000' }
 ];
 
 const Home = () => {
@@ -208,7 +208,7 @@ const Home = () => {
               transition={{ duration: 0.8 }}
             >
               <span className="text-purple-bright font-bold tracking-wider text-sm uppercase mb-4 block">Why Choose Us</span>
-              <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">Your Trusted Real Estate Partner</h2>
+              <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6 text-white">Your Trusted Real Estate Partner</h2>
               <p className="text-gray-400 mb-10 text-lg leading-relaxed">
                 With over a decade of excellence in the luxury real estate market, we provide unparalleled service, deep market insights, and exclusive access to the world's most desirable properties.
               </p>
@@ -225,13 +225,13 @@ const Home = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.2 + 0.4 }}
-                    className="flex gap-4"
+                    className="flex items-center gap-4"
                   >
-                    <div className="w-12 h-12 rounded-full bg-purple-royal/20 flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-purple-royal/30 border border-purple-bright/20 flex items-center justify-center shrink-0">
                       <item.icon className="w-6 h-6 text-purple-bright" />
                     </div>
                     <div>
-                      <h4 className="text-lg font-bold mb-1">{item.title}</h4>
+                      <h4 className="text-lg font-bold mb-1 text-white">{item.title}</h4>
                       <p className="text-gray-400 text-sm">{item.desc}</p>
                     </div>
                   </motion.div>

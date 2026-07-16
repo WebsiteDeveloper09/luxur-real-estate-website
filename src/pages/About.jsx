@@ -73,11 +73,11 @@ const About = () => {
       {/* Hero Section */}
       <div className="relative h-[85vh] min-h-[600px] flex items-center justify-center text-white overflow-hidden">
         <img
-          src="/images/about-hero.png"
+          src="https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&q=80&w=2000"
           alt="Luxur Headquarters"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-dark/80 via-purple-dark/60 to-purple-dark/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-black/85" />
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
@@ -91,10 +91,10 @@ const About = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="text-5xl md:text-7xl font-heading font-bold leading-tight mb-6"
+            className="text-5xl md:text-7xl font-heading font-bold leading-tight mb-6 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]"
           >
             Redefining Luxury<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-bright to-accent-gold">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-bright to-accent-gold drop-shadow-none">
               Real Estate
             </span>
           </motion.h1>
@@ -102,7 +102,7 @@ const About = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md"
           >
             For over two decades, Luxur has been the trusted name for discerning clients seeking the world's most exceptional properties.
           </motion.p>
@@ -181,7 +181,7 @@ const About = () => {
             >
               <div className="rounded-3xl overflow-hidden shadow-2xl">
                 <img
-                  src="/images/about-story.png"
+                  src="https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&q=80&w=1500"
                   alt="Luxury Interior"
                   className="w-full h-[500px] object-cover"
                 />
@@ -291,7 +291,7 @@ const About = () => {
             className="mt-16 rounded-3xl overflow-hidden shadow-2xl relative"
           >
             <img
-              src="/images/about-team.png"
+              src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&q=80&w=2000"
               alt="The Luxur Team"
               className="w-full h-80 object-cover object-top"
             />

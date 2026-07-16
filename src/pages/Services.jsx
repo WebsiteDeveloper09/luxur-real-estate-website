@@ -41,18 +41,29 @@ const Services = () => {
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-royal rounded-full blur-[100px] opacity-30"></div>
         
         <div className="max-w-7xl mx-auto text-center relative z-10">
+          <motion.span
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-block px-5 py-2 rounded-full text-sm font-semibold tracking-widest uppercase bg-purple-royal/40 border border-purple-bright/30 text-purple-bright mb-6"
+          >
+            What We Offer
+          </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-heading font-bold mb-6"
+            transition={{ delay: 0.1 }}
+            className="text-5xl md:text-7xl font-heading font-bold mb-6 text-white drop-shadow-lg"
           >
-            Our Premium Services
+            Our Premium <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-bright to-accent-gold">
+              Services
+            </span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-gray-300 text-lg md:text-xl max-w-3xl mx-auto font-light"
+            className="text-white/80 text-lg md:text-xl max-w-3xl mx-auto font-light"
           >
             Delivering excellence in every transaction. We provide comprehensive, bespoke real estate solutions tailored to the world's most discerning clients.
           </motion.p>
