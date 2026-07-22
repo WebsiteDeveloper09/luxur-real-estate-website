@@ -4,13 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Grid, List, X } from 'lucide-react';
 import PropertyCard from '../components/ui/PropertyCard';
 import { useFavorites } from '../context/FavoritesContext';
+import { supabase } from '../lib/supabaseClient';
 
 // Property data — numeric prices for filtering
-const allProperties = [
-  { id: 1, title: 'Modern Glass Villa in the Hills', location: 'Beverly Hills, CA', price: '$8,500,000', numericPrice: 8500000, image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&q=80&w=2000', beds: 5, baths: 6, sqft: '6,200', garage: 3, featured: true, status: 'For Sale', type: 'Villa' },
-  { id: 2, title: 'Luxury Penthouse with Ocean View', location: 'Miami Beach, FL', price: '$5,200,000', numericPrice: 5200000, image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=2000', beds: 3, baths: 4, sqft: '3,800', garage: 2, featured: false, status: 'For Sale', type: 'Apartment' },
-  { id: 3, title: 'Historic Manor Estate', location: 'Greenwich, CT', price: '$12,750,000', numericPrice: 12750000, image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&q=80&w=2000', beds: 7, baths: 8, sqft: '12,400', garage: 5, featured: true, status: 'For Sale', type: 'House' },
-  { id: 4, title: 'Contemporary Mountain Retreat', location: 'Aspen, CO', price: '$9,100,000', numericPrice: 9100000, image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80', beds: 4, baths: 5, sqft: '4,500', garage: 2, featured: false, status: 'For Rent', type: 'House' },
+const staticProperties = [
+  { id: 1, title: 'Modern Glass Villa in the Hills', location: 'Beverly Hills, CA', price: '$8,500,000', numericPrice: 8500000, image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80', beds: 5, baths: 6, sqft: '6,200', garage: 3, featured: true, status: 'For Sale', type: 'Villa' },
+  { id: 2, title: 'Luxury Penthouse with Ocean View', location: 'Miami Beach, FL', price: '$5,200,000', numericPrice: 5200000, image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80', beds: 3, baths: 4, sqft: '3,800', garage: 2, featured: false, status: 'For Sale', type: 'Apartment' },
+  { id: 3, title: 'Historic Manor Estate', location: 'Greenwich, CT', price: '$12,750,000', numericPrice: 12750000, image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80', beds: 7, baths: 8, sqft: '12,400', garage: 5, featured: true, status: 'For Sale', type: 'House' },
+  { id: 4, title: 'Contemporary Mountain Retreat', location: 'Aspen, CO', price: '$9,100,000', numericPrice: 9100000, image: '/luxur-real-estate-website/images/mountain_retreat.png', beds: 4, baths: 5, sqft: '4,500', garage: 2, featured: false, status: 'For Rent', type: 'House' },
   { id: 5, title: 'Downtown Skyline Loft', location: 'New York, NY', price: '$3,800,000', numericPrice: 3800000, image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1000&q=80', beds: 2, baths: 2, sqft: '2,100', garage: 1, featured: false, status: 'For Sale', type: 'Apartment' },
   { id: 6, title: 'Seaside Modern Home', location: 'Malibu, CA', price: '$15,000,000', numericPrice: 15000000, image: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=800&q=80', beds: 5, baths: 6, sqft: '5,800', garage: 4, featured: true, status: 'For Sale', type: 'House' },
   { id: 7, title: 'Prime Downtown Commercial Tower', location: 'Los Angeles, CA', price: '$22,500,000', numericPrice: 22500000, image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80', beds: 0, baths: 12, sqft: '35,000', garage: 80, featured: true, status: 'For Sale', type: 'Commercial' },
@@ -28,8 +29,8 @@ const allProperties = [
   { id: 18, title: 'Downtown Retail Space with Office', location: 'Dallas, TX', price: '$9,500', numericPrice: 9500, image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80', beds: 4, baths: 2, sqft: '2,000', garage: 4, featured: true, status: 'For Sale', type: 'Commercial' },
   { id: 19, title: 'Suburban Office Park Suite', location: 'Orlando, FL', price: '$7,200', numericPrice: 7200, image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80', beds: 5, baths: 2, sqft: '1,800', garage: 5, featured: false, status: 'For Sale', type: 'Commercial' },
   { id: 20, title: 'Boutique Storefront Property', location: 'Portland, OR', price: '$5,900', numericPrice: 5900, image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=80', beds: 4, baths: 1, sqft: '900', garage: 1, featured: false, status: 'For Sale', type: 'Commercial' },
-
 ];
+
 
 const defaultFilters = {
   status: 'Any',
@@ -48,6 +49,61 @@ const Properties = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [showSaved, setShowSaved] = useState(false);
   const { favorites } = useFavorites();
+  const [allProperties, setAllProperties] = useState(staticProperties);
+
+  // Fetch properties from Supabase
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*');
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const formatted = data.map((item) => {
+            const priceStr = String(item.price || '');
+            const numPrice = Number(priceStr.replace(/[^0-9.]/g, ''));
+            const displayPrice = priceStr.startsWith('$') 
+              ? priceStr 
+              : `$${isNaN(numPrice) || numPrice === 0 ? priceStr : numPrice.toLocaleString()}`;
+            
+            // Handle images array or single image string
+            let mainImg = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80';
+            if (Array.isArray(item.images) && item.images.length > 0 && item.images[0]) {
+              mainImg = item.images[0];
+            } else if (typeof item.image === 'string' && item.image) {
+              mainImg = item.image;
+            } else if (typeof item.images === 'string' && item.images) {
+              mainImg = item.images;
+            }
+
+            return {
+              id: item.id,
+              title: item.title || 'Untitled Property',
+              location: item.location || 'Location Unspecified',
+              price: item.status === 'For Rent' && !displayPrice.includes('/mo') ? `${displayPrice}/mo` : displayPrice,
+              numericPrice: numPrice || 0,
+              image: mainImg,
+              beds: item.beds ?? 0,
+              baths: item.baths ?? 0,
+              sqft: item.sqft ?? 'N/A',
+              garage: item.garage ?? 0,
+              featured: item.featured ?? false,
+              status: item.status || 'For Sale',
+              type: item.type || 'House'
+            };
+          });
+          // Merge Supabase properties ahead of static listings
+          setAllProperties([...formatted, ...staticProperties]);
+        }
+      } catch (err) {
+        console.warn('Could not fetch properties from Supabase, using mock local data:', err);
+      }
+    };
+    fetchProperties();
+  }, []);
 
   // Pending filters (what user is selecting in the sidebar)
   const [pendingFilters, setPendingFilters] = useState(defaultFilters);

@@ -1,9 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, Camera, Briefcase, MessageCircle, Phone, Mail, MapPin, Check } from 'lucide-react';
+import { Globe, Camera, Briefcase, MessageCircle, Phone, Mail, MapPin, Check, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '../../lib/supabaseClient';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .insert([{ email }]);
+      if (error && error.code !== '23505') throw error; // ignore duplicate key error
+      setSubscribed(true);
+      setEmail('');
+      setTimeout(() => setSubscribed(false), 4000);
+    } catch (err) {
+      console.error('Error subscribing email:', err);
+      alert('Failed to subscribe. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -115,10 +139,12 @@ const Footer = () => {
             <p className="text-gray-400 text-sm mb-4">
               Stay updated on new listings and market insights.
             </p>
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-3" onSubmit={handleSubscribe}>
               <div className="relative">
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Your email address"
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-royal transition-colors"
                   required
@@ -126,9 +152,19 @@ const Footer = () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-purple-royal hover:bg-purple-bright text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2"
+                disabled={loading || subscribed}
+                className="w-full bg-purple-royal hover:bg-purple-bright disabled:bg-purple-royal/55 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2"
               >
-                <span>Subscribe</span>
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : subscribed ? (
+                  <>
+                    <Check className="w-5 h-5 text-green-400" />
+                    <span>Subscribed!</span>
+                  </>
+                ) : (
+                  <span>Subscribe</span>
+                )}
               </button>
             </form>
           </motion.div>
@@ -141,9 +177,9 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} Luxur Real Estate. All rights reserved.
           </p>
           <div className="flex items-center space-x-6 text-sm text-gray-500">
-            <Link to="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="#" className="hover:text-white transition-colors">Terms of Service</Link>
-            <Link to="#" className="hover:text-white transition-colors">Sitemap</Link>
+            <Link to="/privacy-policy" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms-of-service" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link to="/sitemap" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors">Sitemap</Link>
           </div>
         </div>
       </div>

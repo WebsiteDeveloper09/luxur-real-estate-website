@@ -1,9 +1,25 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Clock, Send, MessageSquare, Globe, CheckCircle } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+import Chatbot from '../components/ui/Chatbot';
 
 const Contact = () => {
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -45,10 +61,36 @@ const Contact = () => {
     },
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormSubmitted(true);
-    setTimeout(() => setFormSubmitted(false), 4000);
+    try {
+      const { error } = await supabase
+        .from('contact_messages')
+        .insert([{
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+        }]);
+
+      if (error) throw error;
+
+      setFormSubmitted(true);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+      });
+      setTimeout(() => setFormSubmitted(false), 4000);
+    } catch (err) {
+      console.error('Error sending contact message:', err);
+      alert('Failed to send message. Please verify your Supabase settings.');
+    }
   };
 
   return (
@@ -82,24 +124,54 @@ const Contact = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 mb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { icon: Phone, label: 'Call Us', value: '+1 (800) 123-4567', sub: 'Mon–Fri, 9AM–6PM PST', color: 'from-purple-royal to-purple-bright' },
-            { icon: Mail, label: 'Email Us', value: 'contact@luxur.com', sub: 'We reply within 24 hours', color: 'from-purple-bright to-pink-500' },
-            { icon: MessageSquare, label: 'Live Chat', value: 'Start a conversation', sub: 'Available 24/7', color: 'from-purple-dark to-purple-royal' },
+            { 
+              icon: Phone, 
+              label: 'Call Us', 
+              value: '+1 (800) 123-4567', 
+              sub: 'Mon–Fri, 9AM–6PM PST', 
+              color: 'from-purple-royal to-purple-bright',
+              href: 'tel:+18001234567'
+            },
+            { 
+              icon: Mail, 
+              label: 'Email Us', 
+              value: 'contact@luxur.com', 
+              sub: 'We reply within 24 hours', 
+              color: 'from-purple-bright to-pink-500',
+              href: 'mailto:contact@luxur.com'
+            },
+            { 
+              icon: MessageSquare, 
+              label: 'Live Chat', 
+              value: 'Start a conversation', 
+              sub: 'Available 24/7', 
+              color: 'from-purple-dark to-purple-royal',
+              onClick: () => {
+                setIsChatOpen(true);
+              }
+            },
           ].map((item, i) => (
-            <motion.div
+            <motion.a
               key={i}
+              href={item.href || '#contact-form'}
+              onClick={(e) => {
+                if (item.onClick) {
+                  e.preventDefault();
+                  item.onClick();
+                }
+              }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.15 + 0.3 }}
-              className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow text-center group cursor-pointer border border-transparent hover:border-purple-royal/20"
+              className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all text-center group cursor-pointer border border-transparent hover:border-purple-royal/20 block"
             >
               <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform shadow-md`}>
                 <item.icon className="w-7 h-7 text-white" />
               </div>
               <h3 className="font-heading font-bold text-lg text-purple-dark mb-1">{item.label}</h3>
-              <p className="text-purple-royal font-semibold mb-1">{item.value}</p>
+              <p className="text-purple-royal font-semibold mb-1 hover:underline">{item.value}</p>
               <p className="text-gray-400 text-sm">{item.sub}</p>
-            </motion.div>
+            </motion.a>
           ))}
         </div>
       </div>
@@ -110,6 +182,7 @@ const Contact = () => {
 
           {/* Contact Form */}
           <motion.div
+            id="contact-form"
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -142,24 +215,24 @@ const Contact = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <motion.div variants={itemVariants}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                    <input type="text" placeholder="John" required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
+                    <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="John" required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
                   </motion.div>
                   <motion.div variants={itemVariants}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                    <input type="text" placeholder="Doe" required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
+                    <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Doe" required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
                   </motion.div>
                 </div>
                 <motion.div variants={itemVariants}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                  <input type="email" placeholder="john@example.com" required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="john@example.com" required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
                 </motion.div>
                 <motion.div variants={itemVariants}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                  <input type="tel" placeholder="+1 (555) 000-0000" className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
+                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 (555) 000-0000" className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all" />
                 </motion.div>
                 <motion.div variants={itemVariants}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                  <select required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all appearance-none cursor-pointer bg-white">
+                  <select name="subject" value={formData.subject} onChange={handleChange} required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all appearance-none cursor-pointer bg-white">
                     <option value="">Select a topic...</option>
                     <option value="buy">I want to buy a property</option>
                     <option value="sell">I want to sell a property</option>
@@ -170,7 +243,7 @@ const Contact = () => {
                 </motion.div>
                 <motion.div variants={itemVariants}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                  <textarea rows="5" placeholder="Tell us about your real estate needs..." required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all resize-none"></textarea>
+                  <textarea name="message" value={formData.message} onChange={handleChange} rows="5" placeholder="Tell us about your real estate needs..." required className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-royal focus:ring-2 focus:ring-purple-royal/20 transition-all resize-none"></textarea>
                 </motion.div>
                 <motion.button 
                   variants={itemVariants}
@@ -278,6 +351,9 @@ const Contact = () => {
           </div>
         </div>
       </div>
+
+      {/* Floating Chatbot Widget */}
+      <Chatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
 
     </div>
   );

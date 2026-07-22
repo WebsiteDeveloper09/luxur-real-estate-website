@@ -1,16 +1,89 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Lock, User as UserIcon, ArrowRight } from 'lucide-react';
+import { supabase } from '../../lib/supabaseClient';
 
 const AuthModal = ({ isOpen, onClose, initialView = 'signin' }) => {
   const [view, setView] = useState(initialView); // 'signin' or 'signup'
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Reset view when opened
   React.useEffect(() => {
-    if (isOpen) setView(initialView);
+    if (isOpen) {
+      setView(initialView);
+      setEmail('');
+      setPassword('');
+      setFullName('');
+      setErrorMsg('');
+    }
   }, [isOpen, initialView]);
 
   if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setLoading(true);
+
+    try {
+      if (view === 'signup') {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+            },
+          },
+        });
+        if (error) throw error;
+
+        // Also store user profile in public.profiles table
+        try {
+          await supabase.from('profiles').insert([
+            {
+              id: data?.user?.id || undefined,
+              full_name: fullName,
+              email: email,
+            }
+          ]);
+        } catch (dbErr) {
+          console.warn('Could not store profile in public.profiles table:', dbErr);
+        }
+
+        alert('Registration successful! Please check your email for a confirmation link.');
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+
+        // Log user login in user_logins table
+        try {
+          await supabase.from('user_logins').insert([
+            {
+              user_id: data?.user?.id || undefined,
+              email: email,
+              login_time: new Date().toISOString()
+            }
+          ]);
+        } catch (loginErr) {
+          console.warn('Could not store login activity in Supabase:', loginErr);
+        }
+      }
+      onClose();
+    } catch (error) {
+      console.error('Auth error:', error);
+      setErrorMsg(error.message || 'An error occurred during authentication.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -47,13 +120,19 @@ const AuthModal = ({ isOpen, onClose, initialView = 'signin' }) => {
             <h2 className="text-center font-heading text-2xl font-bold text-gray-900 mb-2">
               {view === 'signin' ? 'Welcome Back' : 'Create an Account'}
             </h2>
-            <p className="text-center text-sm text-gray-500 mb-8">
+            <p className="text-center text-sm text-gray-500 mb-6">
               {view === 'signin' 
                 ? 'Sign in to access your saved properties and preferences.' 
                 : 'Join Luxur to save your favorite premium properties.'}
             </p>
 
-            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); alert("Authentication demo successful!"); onClose(); }}>
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-xs font-medium border border-red-100">
+                {errorMsg}
+              </div>
+            )}
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
               {view === 'signup' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -61,7 +140,14 @@ const AuthModal = ({ isOpen, onClose, initialView = 'signin' }) => {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <UserIcon className="h-5 w-5 text-gray-400" />
                     </div>
-                    <input type="text" required className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-purple-royal focus:border-purple-royal sm:text-sm transition-colors" placeholder="John Doe" />
+                    <input
+                      type="text"
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-purple-royal focus:border-purple-royal sm:text-sm transition-colors"
+                      placeholder="John Doe"
+                    />
                   </div>
                 </div>
               )}
@@ -72,7 +158,14 @@ const AuthModal = ({ isOpen, onClose, initialView = 'signin' }) => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-gray-400" />
                   </div>
-                  <input type="email" required className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-purple-royal focus:border-purple-royal sm:text-sm transition-colors" placeholder="you@example.com" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-purple-royal focus:border-purple-royal sm:text-sm transition-colors"
+                    placeholder="you@example.com"
+                  />
                 </div>
               </div>
 
@@ -82,7 +175,14 @@ const AuthModal = ({ isOpen, onClose, initialView = 'signin' }) => {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
-                  <input type="password" required className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-purple-royal focus:border-purple-royal sm:text-sm transition-colors" placeholder="••••••••" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-purple-royal focus:border-purple-royal sm:text-sm transition-colors"
+                    placeholder="••••••••"
+                  />
                 </div>
               </div>
 
@@ -100,9 +200,10 @@ const AuthModal = ({ isOpen, onClose, initialView = 'signin' }) => {
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-purple-royal hover:bg-purple-bright focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-royal transition-all duration-300 transform hover:-translate-y-0.5 mt-6"
+                disabled={loading}
+                className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-purple-royal hover:bg-purple-bright focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-royal transition-all duration-300 transform hover:-translate-y-0.5 mt-6 disabled:opacity-50"
               >
-                {view === 'signin' ? 'Sign In' : 'Create Account'}
+                {loading ? 'Processing...' : view === 'signin' ? 'Sign In' : 'Create Account'}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </button>
             </form>

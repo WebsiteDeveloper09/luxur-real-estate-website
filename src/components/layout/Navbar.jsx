@@ -4,6 +4,7 @@ import { Search, Heart, User, Menu, X, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthModal from '../ui/AuthModal';
 import { useFavorites } from '../../context/FavoritesContext';
+import { supabase } from '../../lib/supabaseClient';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -12,10 +13,23 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authView, setAuthView] = useState('signin');
+  const [user, setUser] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const navRef = useRef(null);
   const { favorites } = useFavorites();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +43,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close dropdowns when clicking outside the navbar
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
@@ -44,6 +57,12 @@ const Navbar = () => {
     setAuthView(view);
     setIsAuthModalOpen(true);
     setActiveDropdown(null);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setActiveDropdown(null);
+    navigate('/');
   };
 
   const handleSearch = () => {
@@ -188,10 +207,24 @@ const Navbar = () => {
                 <AnimatePresence>
                   {activeDropdown === 'user' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 overflow-hidden">
-                      <button onClick={() => openAuthModal('signin')} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-tint hover:text-purple-royal transition-colors font-medium">Sign In</button>
-                      <button onClick={() => openAuthModal('signup')} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-tint hover:text-purple-royal transition-colors font-medium">Create Account</button>
-                      <div className="h-px bg-gray-100 my-2"></div>
-                      <button onClick={() => { navigate('/settings'); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-tint hover:text-purple-royal transition-colors font-medium">My Settings</button>
+                      {user ? (
+                        <>
+                          <div className="px-4 py-2 border-b border-gray-100">
+                            <p className="text-xs text-gray-400">Signed in as</p>
+                            <p className="text-sm font-bold text-purple-dark truncate">{user.user_metadata?.full_name || user.email}</p>
+                          </div>
+                          <button onClick={() => { navigate('/settings'); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-tint hover:text-purple-royal transition-colors font-medium">My Settings</button>
+                          <div className="h-px bg-gray-100 my-2"></div>
+                          <button onClick={handleSignOut} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium">Sign Out</button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => openAuthModal('signin')} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-tint hover:text-purple-royal transition-colors font-medium">Sign In</button>
+                          <button onClick={() => openAuthModal('signup')} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-tint hover:text-purple-royal transition-colors font-medium">Create Account</button>
+                          <div className="h-px bg-gray-100 my-2"></div>
+                          <button onClick={() => { navigate('/settings'); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-tint hover:text-purple-royal transition-colors font-medium">My Settings</button>
+                        </>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>

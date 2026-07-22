@@ -11,6 +11,7 @@ import Careers from './pages/Careers';
 import FAQs from './pages/FAQs';
 import Settings from './pages/Settings';
 import ListProperty from './pages/ListProperty';
+import Legal from './pages/Legal';
 import { FavoritesProvider } from './context/FavoritesContext';
 
 function App() {
@@ -29,7 +30,13 @@ function App() {
             <Route path="faqs" element={<FAQs />} />
             <Route path="settings" element={<Settings />} />
             <Route path="list-property" element={<ListProperty />} />
-            <Route path="*" element={<div className="min-h-screen pt-24 text-center"><h1 className="text-4xl font-heading text-purple-dark">404 - Not Found</h1></div>} />
+            <Route path="privacy-policy" element={<Legal pageType="privacy" />} />
+            <Route path="privacy" element={<Legal pageType="privacy" />} />
+            <Route path="terms-of-service" element={<Legal pageType="terms" />} />
+            <Route path="terms" element={<Legal pageType="terms" />} />
+            <Route path="sitemap" element={<Legal pageType="sitemap" />} />
+            <Route path="legal" element={<Legal pageType="privacy" />} />
+            <Route path="*" element={<Legal />} />
           </Route>
         </Routes>
       </BrowserRouter>

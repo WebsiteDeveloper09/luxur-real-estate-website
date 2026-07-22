@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, MapPin, ChevronDown, ArrowRight, Shield, TrendingUp, Users, ArrowUpRight } from 'lucide-react';
 import PropertyCard from '../components/ui/PropertyCard';
+import { supabase } from '../lib/supabaseClient';
 
 // Dummy data for featured properties
-const featuredProperties = [
+const fallbackFeaturedProperties = [
   {
     id: 1,
     title: 'Modern Glass Villa in the Hills',
     location: 'Beverly Hills, California',
     price: '$8,500,000',
-    image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&q=80&w=2000',
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
     beds: 5,
     baths: 6,
     sqft: '6,200',
@@ -24,7 +25,7 @@ const featuredProperties = [
     title: 'Luxury Penthouse with Ocean View',
     location: 'Miami Beach, Florida',
     price: '$5,200,000',
-    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=2000',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
     beds: 3,
     baths: 4,
     sqft: '3,800',
@@ -37,11 +38,12 @@ const featuredProperties = [
     title: 'Historic Manor Estate',
     location: 'Greenwich, Connecticut',
     price: '$12,750,000',
-    image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&q=80&w=2000',
+    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
     beds: 7,
     baths: 8,
     sqft: '12,400',
     garage: 5,
+
     featured: true,
     status: 'For Sale'
   }
@@ -55,6 +57,49 @@ const categories = [
 ];
 
 const Home = () => {
+  const [featuredProperties, setFeaturedProperties] = useState(fallbackFeaturedProperties);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*')
+          .limit(3);
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const formatted = data.map((item) => {
+            const priceStr = String(item.price || '');
+            const numPrice = Number(priceStr.replace(/[^0-9.]/g, ''));
+            const displayPrice = priceStr.startsWith('$') 
+              ? priceStr 
+              : `$${isNaN(numPrice) || numPrice === 0 ? priceStr : numPrice.toLocaleString()}`;
+            return {
+              id: item.id,
+              title: item.title,
+              location: item.location,
+              price: item.status === 'For Rent' && !displayPrice.includes('/mo') ? `${displayPrice}/mo` : displayPrice,
+              image: item.images && item.images.length > 0 ? item.images[0] : (item.image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80'),
+              beds: item.beds,
+              baths: item.baths,
+              sqft: item.sqft,
+              garage: item.garage,
+              featured: item.featured ?? true,
+              status: item.status,
+              type: item.type
+            };
+          });
+          setFeaturedProperties(formatted);
+        }
+      } catch (err) {
+        console.warn('Could not load featured properties from Supabase, using defaults:', err);
+      }
+    };
+    fetchFeatured();
+  }, []);
+
   // Hero section animation variants
   const heroTextVariants = {
     hidden: { opacity: 0, y: 30 },

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Home, MapPin, DollarSign, Image, List, Plus, Check, Trash2 } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 
 const ListProperty = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -63,29 +64,69 @@ const ListProperty = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Cleanup previews
-    files.forEach(file => {
-      if (file.preview) URL.revokeObjectURL(file.preview);
-    });
-    setTimeout(() => {
-      setSubmitted(false);
-      setFiles([]);
-      setFormData({
-        title: '',
-        location: '',
-        price: '',
-        status: 'For Sale',
-        type: 'House',
-        beds: '',
-        baths: '',
-        sqft: '',
-        garage: '',
-        description: '',
+    try {
+      const uploadedUrls = [];
+      for (const file of files) {
+        const fileName = `${Date.now()}_${file.name}`;
+        const { data, error } = await supabase.storage
+          .from('properties')
+          .upload(fileName, file);
+        
+        if (error) {
+          console.warn('Storage upload error (checking if bucket exists):', error.message);
+          // If storage bucket doesn't exist, we skip uploading files but continue db insertion
+        } else if (data) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('properties')
+            .getPublicUrl(fileName);
+          uploadedUrls.push(publicUrl);
+        }
+      }
+
+      const { error: dbError } = await supabase
+        .from('properties')
+        .insert([{
+          title: formData.title,
+          location: formData.location,
+          price: formData.price,
+          status: formData.status,
+          type: formData.type,
+          beds: parseInt(formData.beds) || 0,
+          baths: parseInt(formData.baths) || 0,
+          sqft: formData.sqft,
+          garage: formData.garage ? parseInt(formData.garage) : null,
+          description: formData.description,
+          images: uploadedUrls
+        }]);
+
+      if (dbError) throw dbError;
+
+      setSubmitted(true);
+      files.forEach(file => {
+        if (file.preview) URL.revokeObjectURL(file.preview);
       });
-    }, 3000);
+      setTimeout(() => {
+        setSubmitted(false);
+        setFiles([]);
+        setFormData({
+          title: '',
+          location: '',
+          price: '',
+          status: 'For Sale',
+          type: 'House',
+          beds: '',
+          baths: '',
+          sqft: '',
+          garage: '',
+          description: '',
+        });
+      }, 3000);
+    } catch (err) {
+      console.error('Error submitting property to Supabase:', err);
+      alert('Failed to submit listing. Please ensure Supabase environment variables are set in your .env file.');
+    }
   };
 
   const handleChange = (e) => {

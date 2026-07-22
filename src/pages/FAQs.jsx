@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -157,13 +158,13 @@ const FAQs = () => {
         >
           <h3 className="text-2xl font-heading font-bold text-purple-dark mb-3">Still have questions?</h3>
           <p className="text-gray-500 mb-6">Our team is happy to assist you with any query, big or small.</p>
-          <a
-            href="/contact"
+          <Link
+            to="/contact"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="btn-primary inline-flex"
           >
             Contact Our Team
-          </a>
+          </Link>
         </motion.div>
       </div>
     </div>

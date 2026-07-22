@@ -1,13 +1,28 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, MapPin, Bell, Shield, Eye, Save } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [saved, setSaved] = useState(false);
+  const [profileVisible, setProfileVisible] = useState(true);
+  const [twoFactor, setTwoFactor] = useState(false);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
+    try {
+      await supabase.from('user_settings').insert([
+        {
+          active_tab: activeTab,
+          profile_visible: profileVisible,
+          two_factor: twoFactor,
+          updated_at: new Date().toISOString()
+        }
+      ]);
+    } catch (err) {
+      console.warn('Could not store settings in Supabase:', err);
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };

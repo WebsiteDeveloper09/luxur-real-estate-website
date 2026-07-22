@@ -1,9 +1,11 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, MapPin, Bed, Bath, Square, Car } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useFavorites } from '../../context/FavoritesContext';
 
 const PropertyCard = ({ property, index }) => {
+  const navigate = useNavigate();
   const { toggleFavorite, isFavorite } = useFavorites();
   const favorited = isFavorite(property.id);
 
@@ -11,6 +13,10 @@ const PropertyCard = ({ property, index }) => {
     e.preventDefault();
     e.stopPropagation();
     toggleFavorite(property);
+  };
+
+  const handleCardClick = () => {
+    navigate(`/properties/${property.id}`);
   };
 
   return (
@@ -22,6 +28,7 @@ const PropertyCard = ({ property, index }) => {
       exit={{ opacity: 0, scale: 0.9 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
+      onClick={handleCardClick}
       className="glass overflow-hidden rounded-2xl group cursor-pointer text-left flex flex-col h-full shadow-sm hover:shadow-xl transition-shadow"
     >
       {/* Image Section */}
@@ -91,12 +98,17 @@ const PropertyCard = ({ property, index }) => {
         </div>
 
         {/* CTA */}
-        <button className="mt-auto btn-outline w-full group-hover:bg-purple-royal group-hover:text-white">
+        <Link 
+          to={`/properties/${property.id}`} 
+          className="mt-auto btn-outline w-full text-center block group-hover:bg-purple-royal group-hover:text-white transition-colors"
+          onClick={(e) => e.stopPropagation()}
+        >
           View Details
-        </button>
+        </Link>
       </div>
     </motion.div>
   );
 };
 
 export default PropertyCard;
+
