@@ -35,6 +35,7 @@ const AuthModal = ({ isOpen, onClose, initialView = 'signin' }) => {
           email,
           password,
           options: {
+            emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL || '/'}`,
             data: {
               full_name: fullName,
             },
